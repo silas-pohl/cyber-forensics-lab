@@ -9,10 +9,12 @@
 \usepackage{acronym}
 \usepackage{listings}
 \usepackage{xurl}
-\usepackage{amsmath}
+\usepackage{amsmath}	
 	
-	
-\title{CYBER FORENSICS (CYFO) - Lab Assignment}
+\title{
+  CYBER FORENSICS (CYFO) VT 24\\ 
+  Lab Assignment
+ }
 
 \author{
   Fernando M. Sanfeliz\\
@@ -34,10 +36,14 @@
   \footnotesize{sipo6151@student.su.se}
 }
 
+\date{\vspace{16cm}\today}
+
 \begin{document}
   \newgeometry{left=1cm, right=1cm, top=2cm, bottom=2cm}
   \maketitle
-  \afterpage{\aftergroup\restoregeometry}
+  \thispagestyle{empty}
+  \restoregeometry
+
   
   \newpage
   \subfile{subfiles/assignment1}
@@ -47,5 +53,9 @@
   
   \newpage
   \subfile{subfiles/assignment3}
+  
+  \newpage
+  \bibliographystyle{ieeetr}
+  \bibliography{bibliography}
  
 \end{document}

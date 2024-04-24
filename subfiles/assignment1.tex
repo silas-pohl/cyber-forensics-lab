@@ -1,5 +1,97 @@
-\documentclass[../main.tex]{subfiles}
-
 \centerline{\LARGE{\textbf{Assignment 1: Introduction to Network Forensics}}}
 \vspace{1cm}
-\blindtext
+\noindent A virtual machine running Kali 2024.1 and Wireshark (wireshark:amd64/kali-rolling 4.2.2-1) was used to analyse the .pcap files of assignment 1.
+
+\noindent\rule{\textwidth}{1pt}
+\vspace{-0.8cm}
+\begin{table}[h]
+\begin{tabular}{ll}
+Evidence file: & \texttt{1.pcap}                                 \\
+MD5 Hash:      & \texttt{47451679a42fc2a5a637886e97fd7283}         \\
+SHA-1 Hash:    & \texttt{4623636b88b6293888a3ebcb75cffb767bd11094}
+\end{tabular}
+\end{table}
+\vspace{-0.8cm}
+\subsubsection*{Verifying the hashes}
+\begin{verbatim}
+$ md5sum 1.pcap         
+47451679a42fc2a5a637886e97fd7283  1.pcap
+$ sha1sum 1.pcap   
+4623636b88b6293888a3ebcb75cffb767bd11094  1.pcap
+\end{verbatim}
+\subsubsection*{1. What is/are the source(s) (IP address) of the suspicious traffic?}
+\texttt{192.0.2.245, 192.0.2.196, 192.0.2.207, 192.0.2.6, 192.0.2.25, 192.0.2.120, \\192.0.2.83, 192.0.2.154, 192.0.2.253, 192.0.2.236}
+\subsubsection*{2. What is the destination (IP address) of the suspicious traffic?}
+\texttt{192.0.2.2}
+\subsubsection*{3. What is the transport layer protocol used?}
+Transmission Control Protocol (TCP)
+\subsubsection*{4. What is/are the source port(s)?}
+\texttt{35356, 44463, 23784, 51136, 57003, 20920, 36927, 52048, 62151, 46528}
+\subsubsection*{5. What is/are the destination port(s)?}
+\texttt{64354, 58034, 25895, 62694, 48897, 46680, 35104, 43120, 17166, 19043}
+\subsubsection*{6. What conclusions can you draw from the type of the "attack"/activity illustrated by this pcap?}
+The network activity observed appears to involve attempts to establish connections with various ports on the destination address 192.0.2.2. This behavior could indicate a port scan, where the scanning party seeks to identify open ports on the target system. While not inherently malicious, port scanning can be a precursor to unauthorized access attempts or reconnaissance activities. Alternatively, the repeated connection attempts to the same destination address could suggest a potential Distributed Denial of Service (DDoS) attack. However, the number of connections initiated (10 in this case) is unlikely to overwhelm a server and cause a significant disruption in service.
+
+\noindent\rule{\textwidth}{1pt}
+\vspace{-0.8cm}
+\begin{table}[h]
+\begin{tabular}{ll}
+Evidence file: & \texttt{2.pcap}                                 \\
+MD5 Hash:      & \texttt{19633e3a2a3d4c315994fddc3ce7090f}         \\
+SHA-1 Hash:    & \texttt{f9d5be156ca124b46450910d2b7b1e79f2f6825c}
+\end{tabular}
+\end{table}
+\vspace{-0.8cm}
+\subsubsection*{Verifying the hashes}
+\begin{verbatim}
+$ md5sum 2.pcap 
+19633e3a2a3d4c315994fddc3ce7090f  2.pcap
+$ sha1sum 2.pcap 
+f9d5be156ca124b46450910d2b7b1e79f2f6825c  2.pcap
+\end{verbatim}
+\subsubsection*{1. What is the source(s) (MAC address) of the suspicious traffic?}
+\texttt{CIMSYS\_33:44:55 (00:11:22:33:44:55)}
+\subsubsection*{2. What is/are the destination (MAC address[es]) of where the suspicious traffic is mostly directed towards?}
+\begin{itemize}
+	\item \texttt{Intel\_83:13:e8 (00:0e:0c:83:13:e8)} received 3279 packets
+	\item \texttt{Broadcast (ff:ff:ff:ff:ff:ff)} received 541 packets
+	\item all other destinations received $\leq 20$ packets
+\end{itemize}
+\subsubsection*{3. What is the link layer protocol used?}
+Address Resolution Protocol (ARP)
+\subsubsection*{4. What is the purpose of this protocol?}
+The purpose of ARP  is to map an IP address to a MAC address on a local network. This mapping is necessary because devices communicate using MAC addresses at the data link layer (Layer 2) of the OSI model, while IP addresses are used at the network layer (Layer 3). When a device on a LAN wants to communicate with another device, it needs to know the MAC address of the target device. ARP helps in this process by broadcasting an ARP request message to all devices on the network, asking for the MAC address corresponding to a specific IP address. The device with the matching IP address responds with its MAC address, allowing the requesting device to establish a direct communication link.\cite{rfc826}
+\subsubsection*{5. What conclusions can you draw from the type of the attack illustrated by this pcap? How can this attack be used for launching other kinds of attacks?}
+The source MAC address (\texttt{CIMSYS\_33:44:55}) is consistently sending the suspicious traffic. This suggests that the traffic is likely originating from a single device or attacker. The suspicious traffic is directed towards various MAC addresses, including broadcasting and \texttt{Intel\_83:13:e8}, as well as other less frequent destinations, such as \texttt{ASUSTekCOMPU\_1b:32:11}, \texttt{AniCommunica\_91:12:a8}, etc. This pattern is indicative of ARP poisoning attacks. 516 packets are configured with “Duplicate IP addresses.” ARP spoofing involves sending falsified ARP messages over a local area network. Attackers may send ARP replies with their own MAC address in response to ARP requests, causing network devices to update their ARP caches with incorrect mappings. This allows attackers to intercept, modify, or redirect network traffic. ARP spoofing can be used as a stepping stone for launching other types of attacks, including:
+\begin{itemize}
+	\item Man-in-the-Middle (MITM) Attacks: By intercepting and redirecting network traffic, attackers can eavesdrop on communications, steal sensitive information, or modify data packets. 
+	\item Denial of Service (DoS) Attacks: ARP spoofing can be used to flood a network with falsified ARP messages, leading to network congestion or disruption of communication between legitimate devices.
+	\item Session Hijacking: By intercepting and manipulating ARP traffic, attackers can hijack established network sessions, gaining unauthorized access to sensitive systems or services.\cite{detectingARP}
+\end{itemize} 
+
+\noindent\rule{\textwidth}{1pt}
+\vspace{-0.8cm}
+\begin{table}[h]
+\begin{tabular}{ll}
+Evidence file: & \texttt{3.pcap}                                 \\
+MD5 Hash:      & \texttt{0944977919541d4ee176450b7ce36f9d}         \\
+SHA-1 Hash:    & \texttt{7349e1fea8e6ed6b4dce3f89898b1c6492f3a610}
+\end{tabular}
+\end{table}
+\vspace{-0.8cm}
+\subsubsection*{Verifying the hashes}
+\begin{verbatim}
+$ md5sum 3.pcap 
+0944977919541d4ee176450b7ce36f9d  3.pcap
+$ sha1sum 3.pcap 
+7349e1fea8e6ed6b4dce3f89898b1c6492f3a610  3.pcap
+\end{verbatim}
+\subsubsection*{1. What is the source (IP address) of the suspicious traffic?}
+\texttt{10.0.23.109}
+\subsubsection*{2. What is the destination (IP address) of the suspicious traffic?}
+\texttt{80.237.98.132}
+\subsubsection*{3. What is the transport layer protocol used?}
+Transmission Control Protocol (TCP)
+\subsubsection*{4. This may be considered as not a direct attack but as a preparation step before an attack. Name the technique used and its purpose.}
+
+Mostly SYN connections (the first part of the TCP three-way handshake) are observed. TCP Retransmissions occur when the sender fails to receive an acknowledgment (ACK) from the receiver within a certain time period. This behavior indicates a SYN port scanning activity (stealth scan). The purpose of port scanning is to find out which of the ports of the target machine are open to investigate/attack them further in the next step.
