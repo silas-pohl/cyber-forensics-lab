@@ -1,0 +1,51 @@
+\documentclass[12pt]{article}
+\usepackage[left=2cm, right=2cm, top=2cm, bottom=2cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{afterpage}
+\usepackage{blindtext}
+\usepackage{subfiles}
+\usepackage{graphicx}
+\usepackage{acronym}
+\usepackage{listings}
+\usepackage{xurl}
+\usepackage{amsmath}
+	
+	
+\title{CYBER FORENSICS (CYFO) - Lab Assignment}
+
+\author{
+  Fernando M. Sanfeliz\\
+  \textit{\footnotesize{Dept. of Computer and Systems Sci.}}\\
+  \textit{\footnotesize{Stockholm University}}\\
+  \footnotesize{Stockholm, Sweden}\\
+  \footnotesize{fesa6676@student.su.se}
+  \and
+  Gustav Mönefors\\
+  \textit{\footnotesize{Dept. of Computer and Systems Sci.}}\\
+  \textit{\footnotesize{Stockholm University}}\\
+  \footnotesize{Stockholm, Sweden} \\
+  \footnotesize{gumo9296@student.su.se}
+  \and
+  Silas Pohl\\
+  \textit{\footnotesize{Dept. of Computer and Systems Sci.}}\\
+  \textit{\footnotesize{Stockholm University}}\\
+  \footnotesize{Stockholm, Sweden} \\
+  \footnotesize{sipo6151@student.su.se}
+}
+
+\begin{document}
+  \newgeometry{left=1cm, right=1cm, top=2cm, bottom=2cm}
+  \maketitle
+  \afterpage{\aftergroup\restoregeometry}
+  
+  \newpage
+  \subfile{subfiles/assignment1}
+  
+  \newpage
+  \subfile{subfiles/assignment2}
+  
+  \newpage
+  \subfile{subfiles/assignment3}
+ 
+\end{document}
