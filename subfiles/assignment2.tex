@@ -1,6 +1,36 @@
 \centerline{\LARGE{\textbf{Assignment 2: Suspicious Wireless Traffic}}}
 \section{Introduction}
-\blindtext
+In the scenario presented, we are confronted with a reported incident of unauthorized financial transactions from a user's bank account within our network. This raises concerns about the security posture of our network infrastructure and the potential presence of malicious activities.
+\newline
+
+\noindent To address these concerns, we have conducted a forensic investigation utilizing packet capture data obtained from traffic sensors strategically placed to capture network traffic traversing critical network segments. Through detailed analysis of the captured network traffic, our goal is to uncover any suspicious activities, identify potential security breaches, and gain insights into the events leading up to the reported incident.
 \section{Methods}
+Our investigation into the suspicious wireless traffic began with a thorough confirmation of the integrity of the provided evidence files: \texttt{A.pcap}, \texttt{B.pcap} and \texttt{C.pcap}. We utilized their respective SHA1 and MD5 hash values to ensure that the files had not been altered or corrupted since their acquisition.
+
+\paragraph{Method and Tools for Analysing the Network Traffic}\mbox{}\\
+\noindent\rule{\textwidth}{1pt}
+\vspace{-0.8cm}
+\begin{table}[h]
+\begin{tabular}{ll}
+Kali Linux (VM) & \texttt{2024.1}                                 \\
+Wireshark      & \texttt{wireshark:amd64/kali-rolling 4.2.2-1} \\
+aircrack-ng      & \texttt{aircrack-ng:amd64/kali-rolling 1:1.7-5} \\
+WhatIsMyIPAddress   & \texttt{https://whatismyipaddress.com/}  (last accessed on April 28, 2024) \\
+Wayback-Machine   & \texttt{https://web.archive.org/}  (last accessed on April 28, 2024)
+\end{tabular}
+\end{table}
+
+\noindent Each evidence file (\texttt{A.pcap}, \texttt{B.pcap} and \texttt{C.pcap}) was analyzed using Wireshark 4.2.2, a powerful network protocol analyzer, running on a Kali 2024.1 virtual machine (VM) to extract relevant information regarding network traffic patterns, communication protocols, and potential anomalies. 
+\newline
+
+\noindent For \texttt{A.pcap}, we focused on identifying WLAN traffic information, including the BSSID, SSID, and encryption details of the network with the most traffic. This involved examining beacon frames, probe requests, and association requests to determine network characteristics. We attempted to extract any WEP keys present in the captured WLAN traffic using the aircrack-ng tool in the Kali Linux virtual machine. We then aimed to use the extracted key to decrypt encrypted traffic and analyze its contents. We identified IP communications with the highest traffic volume within A.pcap, focusing on external IP addresses involved in the communication.
+\newline
+
+\noindent In \texttt{B.pcap}, we sought to identify the IP and MAC addresses of the firewall and the access point by analyzing network traffic. This involved examining ARP requests and responses, DHCP transactions, and other network protocols to determine the identities of these devices. We scrutinized \texttt{B.pcap} for any indications of malicious activity or security breaches. This included analyzing network traffic patterns, identifying anomalous behavior, and recognizing common attack signatures associated with various cyber threats.
+\newline
+
+\noindent For \texttt{C.pcap}, we focused on analyzing web traffic to determine which website the client attempted to visit. Additionally, we identified the system that responded to the client's request and attempted to reconstruct the requested web page for comparison with the original. We constructed a chronological timeline of events based on the captured network traffic in \texttt{C.pcap}. This timeline provided a sequential overview of the interactions between network entities, aiding in understanding the sequence of events leading up to the observed network activity.
+
+
 \section{Results}
 \section{Discussion}
