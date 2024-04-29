@@ -104,7 +104,6 @@ The verification of the SHA1 and MD5 hash values of the evidence file \texttt{ha
 
 \noindent When looking at the HTTP traffic, it is noticeable that many GET requests were made to url paths that do not exist. For example, attempts were made to call \url{/iissamples/issamples/fastq.idq?CiTemplate=../../../../../../../../../../../../winnt/win.ini}, \url{/readme.html} or \url{/admin.html} on the Linux server (10.11.8.18). This could be a sign that an attacker tried a directory/path traversal attack.
 
-\newpage
 \subsection{Investigating the Linux Server Image}
 \begin{verbatim}
 $ sha1sum haisy.raw      
@@ -138,9 +137,41 @@ erika:x:1000:1000:Erika Thuning,,,:/home/erika:/bin/bash
 	\item Editing Apache Configuration Files (\texttt{nano /etc/apache2/apache2.conf, cd /etc/apache2/, nano apache2.conf, ...}): Changes to the Apache configuration could be legitimate, but they can also indicate an attempt to alter the web server's behavior for malicious purposes, such as setting up a reverse proxy for traffic redirection.
 	\item Direct Interaction with MySQL Database (\texttt{mysql -u erika -p < haisy\_students\_2023.sql, mysql -u root -p haisy < haisy\_students\_2023.sql, ...}): Importing/exporting data using the MySQL command line with root access can be a standard administrative task, but it can also be a way to inject malicious data or exfiltrate information.
 \end{itemize}
+Examination of \texttt{/var/log/syslog} shows that routine tasks such as DHCP renewals and periodic cron jobs were executed. Nevertheless, several segfaults occurred at different times. Segfaults indicate that a program has attempted to access memory for which it did not have permission, or that it has attempted to execute a process that was not allowed. The affected processes include QIRCKvwYm, oymZYryK, wbMEAsyiwVoHrV, GmBxfGdRbZmmDc, rvqSmSIKwxGhuXI, LkAjRzqB, gBWWFnVPKxb, zrrleSXSDFxI and LqqCzyBp. These processes appear to have been deleted, which could indicate that they are temporary files or malware.
+\newline
 
-\newpage
+\noindent\texttt{/var/log/auth.log} also contains suspicious entries. The entry at Apr 24 00:03:46 indicates that the user "erika" executed the nano command with root privileges. The user "erika" seems to have edited a file (index.php) using nano. Another log entry at Apr 24 00:04:07 shows the user "erika" using sudo to run nano on the file index.php, again with root privileges. The entry at indicates that a cron session was opened for the root user. However, there is no corresponding "session closed" entry. It's unusual for a session to remain open without being closed properly. This might indicate a potential issue or anomaly.
+\newline
+
+\noindent According to the IT department, the Linux server was only running Tomcat and Apache services. In the \texttt{/etc/init.d} directory we found indication that also mysql, postgresql and samba were running. Especially the last one could be of interest, because samba is a file sharing service, that could potentially be used to exfiltrate information from the system.
+\newline
+
+\noindent
+Investigating the Tomcat log files showed that numerous HTTP requests attempting to include or execute a remote file (cirt.net/rfiinc.txt) on the server were executed. These requests are generating 404 errors, indicating that the requested files were not found on the server. This pattern of requests is indicative of an attempted Remote File Inclusion (RFI) attack. In an RFI attack, the attacker tries to exploit vulnerabilities in web applications by including and executing remote files hosted on external servers. Given the frequency and consistency of these requests, it's likely that there's an automated script or bot attempting to exploit potential vulnerabilities in the server or web application.
+\newline
+
+\noindent The log entries of the Apache server indicate several HTTP requests made by the IP address 10.11.2.22 to various endpoints on a server. The requests include attempts to access the root directory ("/"), "admin.html," "index.php," "php," "info.php," and many other endpoints that do not exist on the server, resulting in 404 Not Found errors. Additionally, there are requests made by a tool called Nikto/2.1.6, which appears to be a web vulnerability scanner. It tries various URLs with different extensions and parameters, likely attempting to find vulnerabilities or discover sensitive files on the server. This is consistent with the findings in network traffic with HTTP filter.
+
+\subsection{Timeline of Interesting Events}
+\begin{itemize}
+	\item \textbf{23/Apr/2023 22:17:13 (Apache Log File)} "GET /admin.html HTTP/1.1" 404 499 "-" "Mozilla/5.0 (Android 13; Mobile; rv:109.0) Gecko/112.0 Firefox/112.0" start of attack against Apache Server (potential path traversal attack to find vulnerabilities or public files)
+	\item \textbf{24/Apr/2023 00:03:46 (System Log Files)}: The user "erika" executed the nano command with root privileges. The user "erika" seems to have edited a file (index.php) using nano.
+	\item \textbf{24/Apr/2023 00:04:07 (System Log Files)}: The user "erika" used sudo to run nano on the file index.php, again with root privileges.
+	\item \textbf{24/Apr/2023 06:25:01 (System Log Files)}: A cron session was opened for the root user. However, there is no corresponding "session closed" entry. It's unusual for a session to remain open without being closed properly. This might indicate a potential issue or anomaly.
+	\item \textbf{27/Apr/2023 23:49:17 (Tomcat Log Files)}: "GET /ckHkKicT.db HTTP/1.1" 404 973 (start of potential remote file inclusion attack). Matches with packet 239104 in \texttt{haisy\_4000.pcap} (1832.858680	10.11.2.22	10.11.8.18	HTTP	329	GET /ckHkKicT.db HTTP/1.1). Therefore timestamp 15/Nov/2011 07:55:12 could correlate to 27/Apr/2023 23.49.17
+\end{itemize}
+
 \section{Discussion}
+The comprehensive analysis of the server image and network traffic data reveals a series of suspicious activities and potential security threats targeting the Linux server. These activities encompass a wide range of techniques commonly associated with malicious intent, including repeated SSH service commands, network interface cycling, bypassing SSL certificate verification, editing Apache configuration files, direct interaction with the MySQL database, and attempted remote file inclusion attacks. Additionally, the presence of segfaults in the syslog further underscores the severity of the situation, suggesting possible exploitation attempts or system instability.
+\newline
+
+\noindent The involvement of multiple external IPs, traced back to Romania, the United States, and Sweden, adds another layer of complexity to the investigation. These IPs are associated with various suspicious activities, including attempted remote file inclusion attacks and probing of the server for vulnerabilities using tools like Nikto/2.1.6. Such coordinated and persistent probing from geographically diverse locations is highly indicative of a targeted attack aimed at compromising the server's security.
+\newline
+
+\noindent Moreover, the activities attributed to the user "erika" on the Linux server raise significant red flags. The repeated execution of sensitive commands with root privileges, such as SSH service manipulation, network interface cycling, SSL certificate bypassing, Apache configuration file editing, and direct interaction with the MySQL database, strongly suggest an insider threat or unauthorized access by an individual with malicious intent.
+\newline
+
+\noindent The culmination of these findings leads to the conclusion that the system has likely been subjected to a sophisticated and coordinated attack. The combination of external probing, suspicious user behavior, and anomalous system activities indicates a concerted effort to compromise the server's integrity and potentially exfiltrate sensitive data or establish persistent access for future exploitation. Immediate action is imperative to mitigate the damage and prevent further compromise. This includes, patching known vulnerabilities, resetting compromised credentials, enhancing access controls, and implementing robust monitoring mechanisms to detect and respond to future threats proactively. Furthermore, it's essential to review and reinforce security protocols, conduct employee training on cybersecurity best practices, and remain vigilant against evolving attack vectors. Collaborating with law enforcement and cybersecurity experts may also be necessary to investigate the incident thoroughly and hold accountable those responsible for the attack
 
 
 
