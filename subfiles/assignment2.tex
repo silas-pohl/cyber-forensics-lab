@@ -33,8 +33,71 @@ Wayback-Machine   & \texttt{https://web.archive.org/}  (last accessed on April 2
 
 
 \section{Results}
+In this analysis, suspicious wireless traffic in a small business environment was examined due to concerns raised by a user regarding unauthorized withdrawals from their bank account. The network administrator provided three files (\texttt{A.pcap}, \texttt{B.pcap} and \texttt{C.pcap}) for analysis. Each file was examined for relevant WLAN traffic information and potential indications of attacks.
+
+\begin{verbatim}
+$ sha1sum A.pcap             
+8d5fa66a0a32c3dc6769205a26a922cd5e4ef0e6  A.pcap
+$ md5sum A.pcap 
+16dd44ba4d8842a5ffde82ba743f5c9c  A.pcap
+\end{verbatim}
+The verification of the SHA1 and MD5 hash values of the evidence file \texttt{A.pcap} has shown that the file had not been altered or corrupted since its acquisition because the hash values match the values specified in the instructions. For File \texttt{A.pcap}, the BSSID and SSID of the network with the most traffic were identified as \texttt{DLink\_48:b0:f9} and "DSI\_DSV" respectively. No specific details about encryption were found in probe packets, but WEP parameters were observed in data packets, suggesting the possibility of WEP encryption. Using the "aircrack-ng" tool in Kali VM, a WEP key "44:53:49:4C:41" was extracted, enabling decryption of all traffic for SSID "DSI\_DSV". IP communications with the most traffic involved private IP addresses 192.168.1.201 and external IP addresses 173.199.116.22 (The Constant Company LLC, US) and 74.125.15.84 (Google).
+
+\noindent\rule{\textwidth}{1pt}
+\vspace{-0.8cm}
+\begin{table}[h]
+\begin{tabular}{llll}
+\textbf{private IP address} & \textbf{public IP address} & \textbf{A$>$B (packets)} & \textbf{B$>$A (packets)}\\
+192.168.1.201:27291      & 173.199.116.22:80 & 25,089 (2 MB) & 52,799 (71 MB)\\
+192.168.1.201:27271      & 74.125.15.84:80 & 6,980 (572 kB) & 16,636 (22 MB)
+\end{tabular}
+\end{table}
+
+\begin{verbatim}
+$ sha1sum B.pcap             
+9689f1283ea8e31b6d8a99eec957d9e4fc9deb67  B.pcap
+$ md5sum B.pcap 
+66ba2bb4b2cd73144ea1066d3bd2de8b  B.pcap
+\end{verbatim}
+The verification of the SHA1 and MD5 hash values of the evidence file \texttt{B.pcap} has shown that the file had not been altered or corrupted since its acquisition because the hash values match the values specified in the instructions. For File \texttt{B.pcap}, the IP and MAC addresses of the firewall were identified as 192.168.1.201 and 00:1f:3c:6e:49:24 respectively, while the access point had the IP address 192.168.1.200 and MAC address 08:00:27:d2:f8:61. The volumetric anomalies indicated by the continuous sending of SYN packets to specific hosts suggest a SYN flood attack. The investigation of the traffic indicates two types of attacks:
+\begin{enumerate}
+	\item Distributed Denial of Service (DDoS) Attack - SYN Flood: The volumetric anomalies indicated by the continuous sending of SYN packets to specific hosts suggest a SYN flood attack. This type of DDoS attack is characterized by the attacker sending a high volume of SYN requests to a target server in an attempt to overwhelm it, consuming enough server resources to make the server unresponsive to legitimate traffic.
+	\item The repeated attempts to connect to various ports on the same targets using SYN packets, without further progression of TCP handshake (no ACKs following up), suggest port scanning activity. This is a common reconnaissance tactic used by attackers to identify open ports and services available on a host, which could be exploited later.
+\end{enumerate}
+
+\begin{verbatim}
+$ sha1sum C.pcap             
+34a9a2422c6eca664a172c191a4c9c74af9fcef1 C.pcap
+$ md5sum C.pcap 
+9f89be02cf88ef530df2d2930df1553d  C.pcap
+\end{verbatim}
+The verification of the SHA1 and MD5 hash values of the evidence file \texttt{C.pcap} has shown that the file had not been altered or corrupted since its acquisition because the hash values match the values specified in the instructions. For File \texttt{C.pcap}, the client attempted to visit various websites (\url{fxfeeds.mozilla.com}, \url{www.stopbadware.org}, \url{www.nordea.se}, \url{statse.webtrendslive.com}, \url{internetbanken.privat.nordea.se}, \url{eplusgiro.plusgirot.se}, \url{internetbanken.privat.nordea.se}, \url{eplusgiro.plusgirot.se}, \url{kontoutdrag.plusgirot.se}, \url{solo.nordea.com}, \url{streaming1.nordea.com}, \url{gfs.nb.se}, \url{girovision.plusgirot.se}, \url{eredovisning.plusgirot.se}, \url{newsroom.nordea.com}, \url{koncernvalutakonto.plusgirot.se}, \url{www.checkinmusic.se}). \url{nordea.se} replied back.
+\begin{figure}[h]
+\includegraphics[width=\textwidth]{nordea.png}
+\centering
+\caption{Website nordea.se}
+\label{screen:nordea}
+\end{figure}
+
+\noindent It’s worth noting that it’s IP address seen is the same internal one in the server, aka 192.168.1.201, indicating interaction with a cloned version of the website. Reconstruction of the page revealed differences from the original, indicating potential tampering. Screenshot \ref{screen:nordea} shows the original nordea webpage. On our reconstructed webpage, details wer missing, like pictures, graphics, etc. Out of the network traffic we were able to reconstruct the following timeline of events:
+\begin{enumerate}
+	\item User opened internetbanken.privat.nordea.se
+	\item Request to get the IP Address of the DNS server was executed
+	\item DNS server responded with a IP address corresponding to the record of \\internetbanken.privat.nordea.se (probably tampered DNS record)
+	\item User accessed the IP address and arrived at a cloned version of the nordea website 
+\end{enumerate}
+
 \section{Discussion}
-Our findings showed that there was suspicious activity happening in the network. Based on the \texttt{A.pcap}, \texttt{B.pcap} and \texttt{C.pcap} file we analyzed the network. We started by identifying the network with the most traffic and their SSID and BSSiD, then we looked closer at the access point and the firewall. We continued with the \texttt{B.cap} and identified a possible denial of service attack, the attacker tried scanning the ports and performed actions to send SYN packets to the hosts 192.168.1.150 and 192.168.1.100. This type of attack is synonymous with sending a high volume of SYN requests to a server in order to overwhelm it and therefore deny access to it for legitimate traffic. 
+The analysis of the provided packet capture files (A.pcap, B.pcap, and C.pcap) revealed several noteworthy findings regarding suspicious wireless traffic in the small business environment, particularly concerning potential security threats and unauthorized activities.
 \newline
 
-\noindent When investigating \texttt{C.pcap} closer, we noticed that a user was trying to log in to their bank account at Nordea. The user also visited a music site. When looking closer in Wireshark and the users traffic we received an IP address from the DNS server. While trying to visit the website we found a cloned Nordea website from 2012. Therefore the user accessed the IP address and arrived at a cloned version of Nordea. The tool Wayback Machine was used to find pictures to compare the website from 2012 and the present website.
+\noindent In File \texttt{A.pcap}, the examination of WLAN traffic identified the network with the most activity. Although no specific encryption details were found in probe packets, the presence of WEP parameters in data packets suggested the possibility of WEP encryption. Through the use of the "aircrack-ng" tool, a WEP key "44:53:49:4C:41" was extracted, enabling decryption of all traffic for the SSID "DSI DSV." The analysis also highlighted IP communications involving private IP addresses 192.168.1.201 and external IP addresses 173.199.116.22 (The Constant Company LLC, US) and 74.125.15.84 (Google).
+\newline
+
+\noindent Moving on to File \texttt{B.pcap}, volumetric anomalies indicated a SYN flood attack, a form of Distributed Denial of Service (DDoS) attack. Additionally, repeated attempts to connect to various ports on the same targets using SYN packets indicated port scanning activity, a common reconnaissance tactic used by attackers.
+\newline
+
+\noindent Moving to File \texttt{C.pcap}, the client attempted to visit various websites, including "nordea.se," which responded back. Notably, the IP address seen was the same internal one on the server (192.168.1.201), indicating interaction with a cloned version of the website. Reconstruction of the webpage revealed differences from the original, indicating potential tampering. The timeline of events reconstructed from network traffic suggested DNS tampering, leading the user to access a cloned version of the Nordea website and therefore the potential leak of the banking information of the user.
+\newline
+
+\noindent In conclusion, based on the findings, it is evident that the small business network was subjected to various security threats and unauthorized activities. The presence of WEP encryption and indications of SYN flood attacks and port scanning activity suggest deliberate attempts to compromise the network's security. Furthermore, the reconstruction of the cloned Nordea website and DNS tampering point towards potential phishing or spoofing attempts aimed at obtaining sensitive information from users.
