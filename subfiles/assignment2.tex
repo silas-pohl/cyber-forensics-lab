@@ -34,3 +34,7 @@ Wayback-Machine   & \texttt{https://web.archive.org/}  (last accessed on April 2
 
 \section{Results}
 \section{Discussion}
+Our findings showed that there was suspicious activity happening in the network. Based on the \texttt{A.pcap}, \texttt{B.pcap} and \texttt{C.pcap} file we analyzed the network. We started by identifying the network with the most traffic and their SSID and BSSiD, then we looked closer at the access point and the firewall. We continued with the \texttt{B.cap} and identified a possible denial of service attack, the attacker tried scanning the ports and performed actions to send SYN packets to the hosts 192.168.1.150 and 192.168.1.100. This type of attack is synonymous with sending a high volume of SYN requests to a server in order to overwhelm it and therefore deny access to it for legitimate traffic. 
+\newline
+
+\noindent When investigating \texttt{C.pcap} closer, we noticed that a user was trying to log in to their bank account at Nordea. The user also visited a music site. When looking closer in Wireshark and the users traffic we received an IP address from the DNS server. While trying to visit the website we found a cloned Nordea website from 2012. Therefore the user accessed the IP address and arrived at a cloned version of Nordea. The tool Wayback Machine was used to find pictures to compare the website from 2012 and the present website.
