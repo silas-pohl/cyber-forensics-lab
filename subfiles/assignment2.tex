@@ -59,10 +59,12 @@ $ sha1sum B.pcap
 $ md5sum B.pcap 
 66ba2bb4b2cd73144ea1066d3bd2de8b  B.pcap
 \end{verbatim}
-The verification of the SHA1 and MD5 hash values of the evidence file \texttt{B.pcap} has shown that the file had not been altered or corrupted since its acquisition because the hash values match the values specified in the instructions. For File \texttt{B.pcap}, the IP and MAC addresses of the firewall were identified as 192.168.1.201 and 00:1f:3c:6e:49:24 respectively, while the access point had the IP address 192.168.1.200 and MAC address 08:00:27:d2:f8:61. The volumetric anomalies indicated by the continuous sending of SYN packets to specific hosts suggest a SYN flood attack. The investigation of the traffic indicates two types of attacks:
+The verification of the SHA1 and MD5 hash values of the evidence file \texttt{B.pcap} has shown that the file had not been altered or corrupted since its acquisition because the hash values match the values specified in the instructions. For File \texttt{B.pcap}, the IP and MAC addresses of the firewall were identified as 192.168.1.201 and 00:1f:3c:6e:49:24 respectively, while the access point had the IP address 192.168.1.200 and MAC address 08:00:27:d2:f8:61. 
+The investigation of the traffic indicates two types of attacks: 
+
 \begin{enumerate}
-	\item Distributed Denial of Service (DDoS) Attack - SYN Flood: The volumetric anomalies indicated by the continuous sending of SYN packets to specific hosts suggest a SYN flood attack. This type of DDoS attack is characterized by the attacker sending a high volume of SYN requests to a target server in an attempt to overwhelm it, consuming enough server resources to make the server unresponsive to legitimate traffic.
-	\item The repeated attempts to connect to various ports on the same targets using SYN packets, without further progression of TCP handshake (no ACKs following up), suggest port scanning activity. This is a common reconnaissance tactic used by attackers to identify open ports and services available on a host, which could be exploited later.
+	\item Distributed Denial of Service (DDoS) Attack - SYN Flood: The high volume anomalies identified by the continuous sending of SYN packets to specific hosts suggest SYN flood attack. It is a type of DDoS attack in which a large volume of SYN requests are sent to a target server in hopes of overwhelming it. In doing so, the attack ideally consumes enough server resources which causes the server to become unresponsive to legitimate traffic.
+	\item The repeated attempts to connect to various ports on the same targets using SYN packets, without further progression of TCP handshake (no ACKs following up), suggest port scanning activity.This reconnaissance tactic is commonly used by attackers to identify open ports and services available on a host which can potentially be exploited later.
 \end{enumerate}
 
 \begin{verbatim}
